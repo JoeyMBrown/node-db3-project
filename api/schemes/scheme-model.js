@@ -1,88 +1,46 @@
-function find() { // EXERCISE A
-  /*
-    1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
-    What happens if we change from a LEFT join to an INNER join?
+const db = require('../../data/db-config');
 
-      SELECT
-          sc.*,
-          count(st.step_id) as number_of_steps
-      FROM schemes as sc
-      LEFT JOIN steps as st
-          ON sc.scheme_id = st.scheme_id
-      GROUP BY sc.scheme_id
-      ORDER BY sc.scheme_id ASC;
+async function find() { // EXERCISE A
 
-    2A- When you have a grasp on the query go ahead and build it in Knex.
-    Return from this function the resulting dataset.
-  */
+    return await db('schemes as sc')
+      .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+      .select('sc.*', 'st.step_id')
+      .count('st.step_id as number_of_steps')
+      .groupBy('sc.scheme_id')
+      .orderBy('sc.scheme_id', 'asc')
 }
 
-function findById(scheme_id) { // EXERCISE B
-  /*
-    1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
+async function findById(scheme_id) { // EXERCISE B
 
-      SELECT
-          sc.scheme_name,
-          st.*
-      FROM schemes as sc
-      LEFT JOIN steps as st
-          ON sc.scheme_id = st.scheme_id
-      WHERE sc.scheme_id = 1
-      ORDER BY st.step_number ASC;
+      const schemeSteps = await db('schemes as sc')
+        .leftJoin('steps as st', 'sc.scheme_id', 'st.scheme_id')
+        .select('sc.scheme_name', 'st.*')
+        .where('sc.scheme_id', scheme_id)
+        .orderBy('st.step_number', 'asc')
 
-    2B- When you have a grasp on the query go ahead and build it in Knex
-    making it parametric: instead of a literal `1` you should use `scheme_id`.
+        if(!schemeSteps[0]) {
+          return null;
+        }
 
-    3B- Test in Postman and see that the resulting data does not look like a scheme,
-    but more like an array of steps each including scheme information:
+        if(schemeSteps[0].step_id !== null) {
 
-      [
-        {
-          "scheme_id": 1,
-          "scheme_name": "World Domination",
-          "step_id": 2,
-          "step_number": 1,
-          "instructions": "solve prime number theory"
-        },
-        {
-          "scheme_id": 1,
-          "scheme_name": "World Domination",
-          "step_id": 1,
-          "step_number": 2,
-          "instructions": "crack cyber security"
-        },
-        // etc
-      ]
+          const scheme = {
+            scheme_id: schemeSteps[0].scheme_id,
+            scheme_name: schemeSteps[0].scheme_name,
+            steps: schemeSteps.map((step) => {
+              return { step_id: step.step_id, step_number: step.step_number, instructions: step.instructions}
+            })
+          }
+          return scheme;
+        } else {
 
-    4B- Using the array obtained and vanilla JavaScript, create an object with
-    the structure below, for the case _when steps exist_ for a given `scheme_id`:
-
-      {
-        "scheme_id": 1,
-        "scheme_name": "World Domination",
-        "steps": [
-          {
-            "step_id": 2,
-            "step_number": 1,
-            "instructions": "solve prime number theory"
-          },
-          {
-            "step_id": 1,
-            "step_number": 2,
-            "instructions": "crack cyber security"
-          },
-          // etc
-        ]
-      }
-
-    5B- This is what the result should look like _if there are no steps_ for a `scheme_id`:
-
-      {
-        "scheme_id": 7,
-        "scheme_name": "Have Fun!",
-        "steps": []
-      }
-  */
+          const scheme = {
+            scheme_id: schemeSteps[0].scheme_id,
+            scheme_name: schemeSteps[0].scheme_name,
+            steps: []
+          }
+          return scheme;
+        }
 }
 
 function findSteps(scheme_id) { // EXERCISE C
