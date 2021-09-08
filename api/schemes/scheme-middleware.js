@@ -1,3 +1,6 @@
+const e = require('express');
+const Scheme = require('./scheme-model');
+
 /*
   If `scheme_id` does not exist in the database:
 
@@ -7,7 +10,18 @@
   }
 */
 const checkSchemeId = (req, res, next) => {
+    const { id } = req.params;
 
+    Scheme.findById(id)
+      .then((scheme) => {
+        if(scheme) {
+          req.scheme = scheme;
+          next()
+        } else {
+          next({ message: `scheme with scheme_id ${id} not found`, status: 404})
+        }
+      })
+      .catch(next)
 }
 
 /*
@@ -19,7 +33,13 @@ const checkSchemeId = (req, res, next) => {
   }
 */
 const validateScheme = (req, res, next) => {
+    const schemeName = req.body.scheme_name
 
+    if(!schemeName || typeof schemeName !== 'string') {
+      next({ message: "invalid scheme_name", status: 400})
+    } else {
+      next()
+    }
 }
 
 /*
@@ -32,7 +52,13 @@ const validateScheme = (req, res, next) => {
   }
 */
 const validateStep = (req, res, next) => {
+  const { instructions, step_number } = req.body
 
+  if(!instructions || typeof instructions !== 'string' || step_number < 1 || typeof ste_number !== 'number') {
+    next({message: 'invalid step', status: 400})
+  } else {
+    next()
+  }
 }
 
 module.exports = {
