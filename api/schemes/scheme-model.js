@@ -18,9 +18,9 @@ async function findById(scheme_id) { // EXERCISE B
         .where('sc.scheme_id', scheme_id)
         .orderBy('st.step_number', 'asc')
 
-        // if(!schemeSteps[0]) {
-        //   return null;
-        // }
+        if(!schemeSteps[0]) {
+          return null;
+        }
 
         const scheme = {
           scheme_id: schemeSteps[0].scheme_id,
