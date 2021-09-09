@@ -14,7 +14,6 @@ const checkSchemeId = (req, res, next) => {
 
     Scheme.findById(scheme_id)
       .then((scheme) => {
-        console.log(scheme)
         if(scheme) {
           req.scheme = scheme;
           next()
@@ -55,7 +54,7 @@ const validateScheme = (req, res, next) => {
 const validateStep = (req, res, next) => {
   const { instructions, step_number } = req.body
 
-  if(!instructions || typeof instructions !== 'string' || step_number < 1 || typeof ste_number !== 'number') {
+  if(!instructions || typeof instructions !== 'string' || step_number < 1 || typeof step_number !== 'number') {
     next({message: 'invalid step', status: 400})
   } else {
     next()
