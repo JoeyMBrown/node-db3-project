@@ -65,7 +65,7 @@ async function findById(scheme_id) { // EXERCISE B
 function add(scheme) { // EXERCISE D
  return db('schemes').insert(scheme)
  .then((scheme_id) => {
-   return db('schemes').where('scheme_id', scheme_id).first()
+   return db('schemes').where('scheme_id', scheme_id).first();
  })
 }
 
